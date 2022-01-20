@@ -1,8 +1,0 @@
-Name: Rex::Commands::StreamRun
-Description: Run a command and stream the output line by line.
-Author: jan gehring <jan.gehring@gmail.com>
-License: Apache 2.0
-PerlRequire:
-  - IPC::Open3::Simple
-  - Net::OpenSSH
-  - Net::SFTP::Foreign
