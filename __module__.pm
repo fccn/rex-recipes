@@ -14,14 +14,21 @@ use Rex -base;
 
 # define os-distribution specific package names for openjdk.
 my %package_name_openjdk = (
-   Debian => "%s-%s-%s",
-   Ubuntu => "%s-%s-%s",
+   debian => "%s-%s-%s",
+   ubuntu => "%s-%s-%s",
+   centos => "java-%s-%s",
+);
+
+my %package_name_openjdk_package = (
+   debian => "%s-%s-%s",
+   ubuntu => "%s-%s-%s",
+   centos => "java-%s-%s-%s",
 );
 
 # define os-distribution specific package names for sun/oracle.
 my %package_name_sun_oracle = (
-   Debian => "%s-java%s-%s",
-   Ubuntu => "%s-java%s-%s",
+   debian => "%s-java%s-%s",
+   ubuntu => "%s-java%s-%s",
 );
 
 #
@@ -41,20 +48,36 @@ task "setup", sub {
 
    # defining package based on os-distribution
    my $package;
+   my $lcso = lc(get_operating_system());
 
    if (  $param->{"jse_provider"} eq "sun"
       || $param->{"jse_provider"} eq "oracle" )
    {
       $package = sprintf(
-         $package_name_sun_oracle{ get_operating_system() },
+         $package_name_sun_oracle{ $lcso },
          $param->{"jse_provider"},
          $param->{"jse_version"},
          $param->{"jse_type"}
       );
    }
+   elsif ( $lcso eq "centos" && $param->{"jse_provider"} eq "openjdk" && $param->{"jse_package"} ne "") {
+      $package = sprintf(
+         $package_name_openjdk_package{ $lcso },
+         $param->{"jse_version"},
+         $param->{"jse_provider"},
+         $param->{"jse_package"}
+      );
+   }
+   elsif ( $lcso eq "centos" && $param->{"jse_provider"} eq "openjdk") {
+      $package = sprintf(
+         $package_name_openjdk{ $lcso },
+         $param->{"jse_version"},
+         $param->{"jse_provider"}
+      );
+   }   
    elsif ( $param->{"jse_provider"} eq "openjdk" ) {
       $package = sprintf(
-         $package_name_openjdk{ get_operating_system() },
+         $package_name_openjdk{ $lcso },
          $param->{"jse_provider"},
          $param->{"jse_version"},
          $param->{"jse_type"}
