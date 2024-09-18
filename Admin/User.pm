@@ -27,7 +27,9 @@ task create => sub {
    my $rights   = $param->{rights};
    my $schema   = $param->{schema};
 
-   Rex::Database::MySQL::Admin::execute({sql => "GRANT $rights ON $schema TO '$name'\@'$host' IDENTIFIED BY '$password';\nFLUSH PRIVILEGES;\n"});
+   # Mysql older versions require IDENTIFIED BY
+   #Rex::Database::MySQL::Admin::execute({sql => "GRANT $rights ON $schema TO '$name'\@'$host' IDENTIFIED BY '$password';\nFLUSH PRIVILEGES;\n"});
+   Rex::Database::MySQL::Admin::execute({sql => "GRANT $rights ON $schema TO '$name'\@'$host';\nFLUSH PRIVILEGES;\n"});
 
 };
 
@@ -44,7 +46,9 @@ task drop => sub {
    if ($deleteall) {
       Rex::Database::MySQL::Admin::execute({sql => "DELETE FROM mysql.user WHERE USER LIKE '$name';\nFLUSH PRIVILEGES;\n"});
    } else {
-      Rex::Database::MySQL::Admin::execute({sql => "DROP USER '$name'\@'$host';\nFLUSH PRIVILEGES;\n"});
+      # OLDER VERSIONS don't support IF EXISTS
+      #Rex::Database::MySQL::Admin::execute({sql => "DROP USER '$name'\@'$host';\nFLUSH PRIVILEGES;\n"});
+      Rex::Database::MySQL::Admin::execute({sql => "DROP USER IF EXISTS '$name'\@'$host';\nFLUSH PRIVILEGES;\n"});
    }
 
 };
@@ -76,4 +80,3 @@ Rex::Database::MySQL::Admin::User - Managa MySQL User
        delete_all => "if empty not executed",
     });
  };
-
