@@ -13,23 +13,23 @@ use Rex -base;
 # some package-wide variables
 
 our %package = (
-   Debian => "mysql-server",
-   Ubuntu => "mysql-server",
-   CentOS => "mysql-server",
-   Mageia => "mysql",
+   debian => "mysql-server",
+   ubuntu => "mysql-server",
+   centos => "mysql-server",
+   mageia => "mysql",
 );
 
 our %service_name = (
-   Debian => "mysql",
-   Ubuntu => "mysql",
-   CentOS => "mysqld",
-   Mageia => "mysqld",
+   debian => "mysql",
+   ubuntu => "mysql",
+   centos => "mysqld",
+   mageia => "mysqld",
 );
 
 task "setup", sub {
 
-   my $pkg     = $package{get_operating_system()};
-   my $service = $service_name{get_operating_system()};
+   my $pkg     = $package{lc(get_operating_system())};
+   my $service = $service_name{lc(get_operating_system())};
 
    # install mysql package
    update_package_db;
@@ -42,28 +42,28 @@ task "setup", sub {
 
 task "start", sub {
 
-   my $service = $service_name{get_operating_system()};
+   my $service = $service_name{lc(get_operating_system())};
    service $service => "start";
 
 };
 
 task "stop", sub {
 
-   my $service = $service_name{get_operating_system()};
+   my $service = $service_name{lc(get_operating_system())};
    service $service => "stop";
 
 };
 
 task "restart", sub {
 
-   my $service = $service_name{get_operating_system()};
+   my $service = $service_name{lc(get_operating_system())};
    service $service => "restart";
 
 };
 
 task "reload", sub {
 
-   my $service = $service_name{get_operating_system()};
+   my $service = $service_name{lc(get_operating_system())};
    service $service => "reload";
 
 };
