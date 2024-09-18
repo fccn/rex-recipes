@@ -27,8 +27,10 @@ task create => sub {
    my $rights   = $param->{rights};
    my $schema   = $param->{schema};
 
+
    # Mysql older versions require IDENTIFIED BY
    #Rex::Database::MySQL::Admin::execute({sql => "GRANT $rights ON $schema TO '$name'\@'$host' IDENTIFIED BY '$password';\nFLUSH PRIVILEGES;\n"});
+   Rex::Database::MySQL::Admin::execute({sql => "CREATE USER '$name'\@'$host' IDENTIFIED BY '$password';\n"});
    Rex::Database::MySQL::Admin::execute({sql => "GRANT $rights ON $schema TO '$name'\@'$host';\nFLUSH PRIVILEGES;\n"});
 
 };
