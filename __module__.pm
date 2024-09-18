@@ -13,15 +13,15 @@ use Rex -base;
 # some package-wide variables
 
 our %schema = (
-   Debian => 'php5-%s',
-   Ubuntu => 'php5-%s',
+   Debian => 'php-%s',
+   Ubuntu => 'php-%s',
    CentOS => 'php-%s',
    Mageia => 'php-%s',
 );
 
 our %package = (
-   Debian => 'php5',
-   Ubuntu => 'php5',
+   Debian => 'php',
+   Ubuntu => 'php',
    CentOS => 'php',
    Mageia => 'php-cli',
 );
@@ -34,8 +34,8 @@ our %pear_schema = (
 );
 
 our %pecl_schema = (
-   Debian => 'php5-%s',
-   Ubuntu => 'php5-%s',
+   Debian => 'php-%s',
+   Ubuntu => 'php-%s',
    CentOS => 'php-pecl-%s',
    Mageia => 'php-%s',
 );
