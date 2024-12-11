@@ -13,37 +13,37 @@ use Rex -base;
 # some package-wide variables
 
 our %package = (
-   Debian => "apache2",
-   Ubuntu => "apache2",
-   CentOS => "httpd",
-   Mageia => "apache-base",
+   debian => "apache2",
+   ubuntu => "apache2",
+   centos => "httpd",
+   mageia => "apache-base",
 );
 
 our %service_name = (
-   Debian => "apache2",
-   Ubuntu => "apache2",
-   CentOS => "httpd",
-   Mageia => "httpd",
+   debian => "apache2",
+   ubuntu => "apache2",
+   centos => "httpd",
+   mageia => "httpd",
 );
 
 our %document_root = (
-   Debian => "/var/www",
-   Ubuntu => "/var/www",
-   CentOS => "/var/www/html",
-   Mageia => "/var/www/html",
+   debian => "/var/www",
+   ubuntu => "/var/www",
+   centos => "/var/www/html",
+   mageia => "/var/www/html",
 );
 
 our %vhost_path = (
-   Debian => "/etc/apache2/sites-enabled",
-   Ubuntu => "/etc/apache2/sites-enabled",
-   CentOS => "/etc/httpd/conf.d",
-   Mageia => "/etc/httpd/conf.d",
+   debian => "/etc/apache2/sites-available",
+   ubuntu => "/etc/apache2/sites-available",
+   centos => "/etc/httpd/conf.d",
+   mageia => "/etc/httpd/conf.d",
 );
 
 task "setup", sub {
 
-   my $pkg     = $package{get_operating_system()};
-   my $service = $service_name{get_operating_system()};
+   my $pkg     = $package{lc(get_operating_system())};
+   my $service = $service_name{lc(get_operating_system())};
 
    # install apache package
    update_package_db;
@@ -58,44 +58,55 @@ task "vhost", sub {
    
    my $param = shift;
 
-   file $vhost_path{get_operating_system()} . "/" . $param->{name} . ".conf",
+   file $vhost_path{lc(get_operating_system())} . "/" . $param->{name} . ".conf",
       content => $param->{conf},
       owner   => "root",
       group   => "root",
       mode    => 644,
       on_change => sub {
-         service $service_name{get_operating_system()} => "restart";
+         my $enable_method = 'enable_vhost_'.lc(get_operating_system());
+         &{ \&$enable_method }($param->{name});
+         service $service_name{lc(get_operating_system())} => "restart";
       };
 
 };
 
-task "start", sub {
+sub enable_vhost_debian {
+    my $name = shift;
+    run "a2ensite $name";
+}
 
-   my $service = $service_name{get_operating_system()};
-   service $service => "start";
+sub enable_vhost_ubuntu {
+    my $name = shift;
+    enable_vhost_debian($name);
+}
 
-};
+sub enable_vhost_centos {
+    my $name = shift;
+}
+sub enable_vhost_mageia {
+    my $name = shift;
+}
 
-task "stop", sub {
+sub getConfig {
+    my $myConf = {
+        'package' => $package{lc(get_operating_system())},
+        'service_name' => $service_name{lc(get_operating_system())},
+        'document_root' => $document_root{lc(get_operating_system())},
+        'vhost_path' => $vhost_path{lc(get_operating_system())},
+    };
+    return $myConf;
+}
 
-   my $service = $service_name{get_operating_system()};
-   service $service => "stop";
+# Create service actions like start, stop...
+my @service_actions = qw( start stop restart reload );
+foreach my $service_action (@service_actions) {
+    task "$service_action" => sub {
+        my $service = $service_name{lc(get_operating_system())};
+        service $service => "$service_action";
+    };
+}
 
-};
-
-task "restart", sub {
-
-   my $service = $service_name{get_operating_system()};
-   service $service => "restart";
-
-};
-
-task "reload", sub {
-
-   my $service = $service_name{get_operating_system()};
-   service $service => "reload";
-
-};
 
 1;
 
