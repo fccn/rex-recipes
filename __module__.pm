@@ -26,6 +26,19 @@ our %service_name = (
    mageia => "mysqld",
 );
 
+our $__configuration = { 
+	user => 'mysql',
+	data_dir => '/var/lib/mysql',
+	conf_dir => '/etc/mysql/conf.d',
+	log_dir => '/var/log/mysql',
+	owner => 'mysql',
+	group => 'mysql',
+};
+
+our @__settings = (
+	{ 'log-error' => '/var/log/mysqld.log' },
+);
+
 task "setup", sub {
 
    my $pkg     = $package{lc(get_operating_system())};
@@ -35,10 +48,18 @@ task "setup", sub {
    update_package_db;
    install package => $pkg;
 
+   init();
+
    # ensure that mysql is started
    service $service => "ensure" => "started";
 
 };
+
+
+task "init", sub {
+   initialize_configs();
+};
+
 
 task "start", sub {
 
@@ -67,6 +88,41 @@ task "reload", sub {
    service $service => "reload";
 
 };
+
+sub initialize_configs {
+	my $config = getConfiguration();
+	my $user = $config->{user};
+	my $settings = param_lookup ("settings", \@__settings);
+	my $conf_dir =  $config->{conf_dir};
+
+	# if config dir doesn't exist, create one
+	if (!is_dir($conf_dir)) {
+		file $conf_dir, ensure => "directory";
+	}
+
+	# ensure we don't have repeated settings, remove existing
+	my %existing_keys;
+	my @filtered_settings;
+
+	foreach my $setting (@{$settings}) {
+		foreach my $key (keys %$setting) {
+		unless ($existing_keys{$key}) {
+				$existing_keys{$key} = 1;
+				push @filtered_settings, { $key => $setting->{$key} };
+			}
+		}
+	}
+
+	$settings = \@filtered_settings;
+
+	file "$conf_dir/my.cnf",
+		content   => template("templates/my.cnf.tpl", settings => $settings);
+
+};
+
+sub getConfiguration {
+	return param_lookup ("configuration", $__configuration);
+}
 
 1;
 
