@@ -15,6 +15,13 @@ use Rex::Config;
 use Rex::Database::MySQL::Admin::Schema;
 use Rex::Database::MySQL::Admin::User;
 
+our $__mysql_command = {
+   debian => "mysql",
+   ubuntu => "mysql",
+   centos => "mysql",
+   mageia => "mysql",
+};
+
 my %MYSQL_CONF = ();
 
 Rex::Config->register_set_handler("mysql" => sub {
@@ -30,6 +37,7 @@ task execute => sub {
    my $sql = $param->{sql};
 
    my ($tmp_file, $delete);
+   my $command = param_lookup ("command", case ( lc(operating_system()), $__mysql_command ));
 
    if(is_file($param->{sql})) {
       $tmp_file = $param->{sql};
@@ -52,13 +60,13 @@ task execute => sub {
    my $result;
 
    if ($defaults_file) {
-      $result = run "mysql --defaults-file=$defaults_file $schema < $tmp_file";
+      $result = run "$command --defaults-file=$defaults_file $schema < $tmp_file";
    }
    elsif ($password) {
-      $result = run "mysql -u$user -p$password $schema < $tmp_file";
+      $result = run "$command -u$user -p$password $schema < $tmp_file";
    }
    else {
-      $result = run "mysql -u$user $schema < $tmp_file";
+      $result = run "$command -u$user $schema < $tmp_file";
    }
 
    say $result unless $param->{quiet};
