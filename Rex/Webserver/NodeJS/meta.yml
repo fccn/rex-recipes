@@ -1,8 +1,0 @@
-Name: Rex::Webserver::NodeJS
-Description: Node.js module
-Author: Paulo Graça <paulo.graca@fccn.pt>
-License: GPLv3
-
-# Only if you have dependencies to other Rex Modules - Node.
-Require:
-

@@ -1,6 +1,0 @@
-sparrow:
-  plugins:
-    - df-check
-    - nginx-check
-    - perlbrew
-
